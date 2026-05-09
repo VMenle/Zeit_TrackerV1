@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Zeit Tracker</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2b2b2b">
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;max-width:900px;margin:24px auto;padding:0 16px;color:#222}
+    header{display:flex;align-items:center;gap:12px}
+    h1{margin:0}
+    .controls{margin-top:16px;display:flex;gap:8px;flex-wrap:wrap}
+    button{padding:8px 12px;border:0;background:#0078D4;color:#fff;border-radius:6px;cursor:pointer}
+    button.secondary{background:#6c757d}
+    .log{margin-top:18px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
+    .small-muted{color:#666;font-size:0.9rem}
+    .kbd{font-family:monospace;background:#f1f1f1;padding:2px 6px;border-radius:4px}
+  </style>
+</head>
+<body>
+  <header>
+    <!-- Inlined small 192x192 icon (Base64) -->
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS0Y5fAAAACXBIWXMAAAsTAAALEwEAmpwYAAABKElEQVR4nO3QsQ0AIBDAwP7/p0dYkIhQp2s3m2zYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4G0x7AABwq2fNAAAAAElFTkSuQmCC" width="48" height="48" alt="Icon">
+    <div>
+      <h1>Zeit Tracker</h1>
+      <div class="small-muted">Start/Stopp für Fokus‑Sessions</div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <button id="startBtn">Start</button>
+    <button id="stopBtn" class="secondary" disabled>Stopp</button>
+    <button id="exportBtn" class="secondary">Export CSV</button>
+    <div id="status" style="align-self:center;margin-left:8px;color:#555"></div>
+  </div>
+
+  <section class="log">
+    <h2>Sessions</h2>
+    <table id="sessionsTable">
+      <thead><tr><th>#</th><th>Start</th><th>Ende</th><th>Dauer</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <script>
+    // Einfacher client-seitiger Zeit-Tracker
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const status = document.getElementById('status');
+    const tbody = document.querySelector('#sessionsTable tbody');
+
+    let currentStart = null;
+    const sessions = JSON.parse(localStorage.getItem('zt_sessions') || '[]');
+
+    function render() {
+      tbody.innerHTML = '';
+      sessions.forEach((s,i)=>{
+        const tr = document.createElement('tr');
+        const start = new Date(s.start).toLocaleString();
+        const end = s.end ? new Date(s.end).toLocaleString() : '';
+        const dur = s.end ? formatDuration(new Date(s.end)-new Date(s.start)) : '';
+        tr.innerHTML = `<td>${i+1}</td><td>${start}</td><td>${end}</td><td>${dur}</td>`;
+        tbody.appendChild(tr);
+      });
+      if (currentStart) {
+        status.textContent = 'Läuft seit ' + new Date(currentStart).toLocaleTimeString();
+      } else {
+        status.textContent = '';
+      }
+    }
+
+    function formatDuration(ms){
+      const s = Math.floor(ms/1000);
+      const h = Math.floor(s/3600); const m = Math.floor((s%3600)/60); const sec = s%60;
+      return `${h}h ${m}m ${sec}s`;
+    }
+
+    function save() { localStorage.setItem('zt_sessions', JSON.stringify(sessions)); }
+
+    // initialize
+    const openSession = sessions.find(s=>!s.end);
+    if (openSession) {
+      currentStart = openSession.start;
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+    }
+    render();
+
+    startBtn.addEventListener('click', ()=>{
+      currentStart = new Date().toISOString();
+      sessions.push({start: currentStart, end: null});
+      save();
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      render();
+    });
+
+    stopBtn.addEventListener('click', ()=>{
+      if (!currentStart) return;
+      const idx = sessions.findIndex(s=>s.start===currentStart);
+      sessions[idx].end = new Date().toISOString();
+      currentStart = null;
+      save();
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+      render();
+    });
+
+    exportBtn.addEventListener('click', ()=>{
+      let csv = 'Index,Start,Ende,Dauer(ms)\n';
+      sessions.forEach((s,i)=>{
+        csv += `${i+1},"${s.start}","${s.end || ''}",${s.end? new Date(s.end)-new Date(s.start):''}\n`;
+      });
+      const blob = new Blob([csv], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'zeit_tracker_sessions.csv'; a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // register simple service worker if available
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+    }
+  </script>
+</body>
+</html>
