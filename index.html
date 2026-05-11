@@ -1,0 +1,1215 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <title>ZeitTracker</title>
+
+  <meta name="theme-color" content="#ECEFF3">
+
+  <style>
+
+    :root{
+
+      --bg:#ECEFF3;
+
+      --shell:#1E2630;
+      --card:#27313D;
+
+      --accent:#4DA3FF;
+
+      --success-1:#34D399;
+      --success-2:#059669;
+
+      --danger-1:#FF5D73;
+      --danger-2:#E11D48;
+
+      --text:#F5F7FA;
+      --text-soft:#B4BFCC;
+      --text-muted:#7F8A99;
+
+      --edited:#F59E0B;
+
+      --radius-xl:34px;
+      --radius-lg:24px;
+    }
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    html,
+    body{
+      height:100%;
+    }
+
+    body{
+
+      background:var(--bg);
+
+      font-family:
+        Inter,
+        system-ui,
+        sans-serif;
+
+      color:var(--text);
+
+      padding:16px;
+
+      display:flex;
+      justify-content:center;
+    }
+
+    .app{
+
+      width:100%;
+      max-width:520px;
+
+      position:relative;
+    }
+
+    /* MAIN SHELL */
+
+    .app-shell{
+
+      background:var(--shell);
+
+      border-radius:38px;
+
+      min-height:calc(100vh - 32px);
+
+      padding:24px 20px 110px;
+
+      display:flex;
+      flex-direction:column;
+
+      box-shadow:
+        0 25px 60px rgba(0,0,0,0.16);
+    }
+
+    /* LOGO */
+
+    .logo{
+
+      font-size:1.35rem;
+      font-weight:700;
+
+      margin-bottom:40px;
+
+      letter-spacing:-0.03em;
+    }
+
+    .logo .accent{
+      color:var(--accent);
+    }
+
+    .logo .muted{
+      color:#D6DCE5;
+      font-weight:500;
+    }
+
+    /* PAGES */
+
+    .page{
+      display:none;
+      flex:1;
+    }
+
+    .page.active{
+      display:flex;
+      flex-direction:column;
+      height:100%;
+    }
+
+    /* HOME */
+
+    .home-top{
+
+      text-align:center;
+        background:var(--card);
+        padding-top:8px;
+        border-top-left-radius:30px;
+        border-top-right-radius:30px;
+    }
+
+    .welcome{
+
+      color:var(--text-soft);
+
+      font-size:0.96rem;
+
+      margin-bottom:12px;
+    }
+
+    .month-label{
+
+      color:var(--text-muted);
+
+      margin-bottom:10px;
+    }
+
+    .month-time{
+
+      font-size:4rem;
+      font-weight:700;
+
+      letter-spacing:-0.06em;
+
+      line-height:1;
+    }
+
+    /* PUSHER */
+
+    .home-spacer{
+      flex:1;
+        background:var(--card);
+    }
+
+    /* BUTTON AREA */
+
+    .action-wrapper{
+
+      margin-bottom:10px;
+        background:var(--card);
+        padding-bottom:6px;
+        border-bottom-left-radius:30px;
+        border-bottom-right-radius:30px;
+    }
+
+    .action-card{
+
+      background:var(--card);
+
+      border-radius:30px;
+
+      min-height:240px;
+
+      display:flex;
+      justify-content:center;
+      align-items:center;
+
+      padding:24px;
+
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
+    .action-btn{
+
+      width:70%;
+      min-height:94px;
+
+      border:none;
+      outline:none;
+
+      border-radius:24px;
+
+      font-size:1.4rem;
+      font-weight:700;
+
+      cursor:pointer;
+
+      transition:0.18s ease;
+    }
+
+    .action-btn:hover{
+      transform:translateY(-2px);
+    }
+
+    .action-btn:active{
+      transform:scale(0.98);
+    }
+
+    .start{
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--success-1),
+          var(--success-2)
+        );
+
+      color:white;
+
+      box-shadow:
+        0 0 36px rgba(52,211,153,0.35);
+    }
+
+    .stop{
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--danger-1),
+          var(--danger-2)
+        );
+
+      color:white;
+
+      box-shadow:
+        0 0 36px rgba(255,93,115,0.30);
+    }
+
+    .status{
+
+      margin-top:20px;
+
+      text-align:center;
+
+      color:var(--text-muted);
+    }
+
+    /* CARD */
+
+    .content-card{
+
+      background:var(--card);
+
+      border-radius:30px;
+
+      padding:24px;
+
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
+    /* SETTINGS */
+
+    .section-title{
+
+      font-size:1.1rem;
+
+      margin-bottom:22px;
+    }
+
+    .label{
+
+      display:block;
+
+      margin-bottom:10px;
+
+      color:var(--text-soft);
+
+      font-size:0.92rem;
+    }
+
+    input{
+
+      width:100%;
+
+      border:none;
+      outline:none;
+
+      border-radius:18px;
+
+      padding:16px;
+
+      background:rgba(255,255,255,0.06);
+
+      color:white;
+
+      margin-bottom:20px;
+
+      font-size:1rem;
+    }
+
+    input:focus{
+
+      box-shadow:
+        0 0 0 4px rgba(77,163,255,0.18);
+    }
+
+    .secondary-btn{
+
+      width:100%;
+
+      border:none;
+
+      border-radius:18px;
+
+      background:rgba(255,255,255,0.08);
+
+      color:white;
+
+      padding:18px;
+
+      font-size:1rem;
+      font-weight:600;
+
+      cursor:pointer;
+    }
+
+    /* OVERVIEW */
+
+    .month-switcher{
+
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+
+      margin-bottom:24px;
+    }
+
+    .month-btn{
+
+      width:42px;
+      height:42px;
+
+      border:none;
+
+      border-radius:14px;
+
+      background:rgba(255,255,255,0.08);
+
+      color:white;
+
+      cursor:pointer;
+    }
+
+    .overview-total{
+
+      margin-bottom:24px;
+    }
+
+    .overview-total-label{
+
+      color:var(--text-muted);
+
+      margin-bottom:6px;
+    }
+
+    .overview-total-time{
+
+      font-size:2.2rem;
+      font-weight:700;
+    }
+
+    .entries{
+
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .entry{
+
+      background:rgba(255,255,255,0.05);
+
+      border-radius:18px;
+
+      padding:16px;
+
+      border:1px solid transparent;
+    }
+
+    .entry.edited{
+
+      border-color:rgba(245,158,11,0.5);
+
+      background:rgba(245,158,11,0.12);
+    }
+
+    .entry-top{
+
+      display:flex;
+      justify-content:space-between;
+
+      margin-bottom:14px;
+
+      color:var(--text-soft);
+
+      font-size:0.86rem;
+    }
+
+    .entry-row{
+
+      display:flex;
+      gap:10px;
+    }
+
+    .entry-row input{
+
+      margin:0;
+      padding:12px;
+
+      font-size:0.9rem;
+    }
+
+    .edited-badge{
+
+      margin-top:10px;
+
+      color:var(--edited);
+
+      font-size:0.8rem;
+      font-weight:600;
+    }
+
+    /* NAVIGATION */
+
+    .bottom-nav{
+
+      position:fixed;
+
+      left:50%;
+      bottom:16px;
+
+      transform:translateX(-50%);
+
+      width:calc(100% - 32px);
+      max-width:488px;
+
+      background:rgba(30,38,48,0.94);
+
+      border-radius:26px;
+
+      padding:14px 10px;
+
+      display:flex;
+      justify-content:space-around;
+
+      backdrop-filter:blur(24px);
+
+      box-shadow:
+        0 10px 40px rgba(0,0,0,0.22);
+    }
+
+    .nav-item{
+
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+
+      gap:6px;
+
+      color:var(--text-muted);
+
+      text-decoration:none;
+
+      font-size:0.76rem;
+
+      cursor:pointer;
+    }
+
+    .nav-item.active{
+      color:var(--accent);
+    }
+
+    .nav-item svg{
+
+      width:22px;
+      height:22px;
+    }
+
+    @media (max-width:540px){
+
+      .month-time{
+        font-size:3.1rem;
+      }
+
+      .action-btn{
+        width:88%;
+      }
+
+      .entry-row{
+        flex-direction:column;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <main class="app">
+
+    <div class="app-shell">
+
+      <!-- LOGO -->
+
+      <div class="logo">
+        <span class="accent">Zeit</span><span class="muted">Tracker</span>
+      </div>
+
+      <!-- HOME -->
+
+      <section
+        id="homePage"
+        class="page active">
+
+        <div class="home-top">
+
+          <div
+            class="welcome"
+            id="welcomeText">
+
+            Hallo Unbekannte|r!
+
+          </div>
+
+          <div class="month-label">
+            diesen Monat gebucht:
+          </div>
+
+          <div
+            class="month-time"
+            id="monthlyTime">
+
+            00:00
+
+          </div>
+
+        </div>
+
+        <div class="home-spacer"></div>
+
+        <div class="action-wrapper">
+
+          <div class="action-card">
+
+            <button
+              id="actionBtn"
+              class="action-btn start">
+
+              Start
+
+            </button>
+
+          </div>
+
+          <div
+            class="status"
+            id="status">
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- OVERVIEW -->
+
+      <section
+        id="overviewPage"
+        class="page">
+
+        <div class="content-card">
+
+          <div class="month-switcher">
+
+            <button
+              class="month-btn"
+              id="prevMonthBtn">
+
+              ←
+
+            </button>
+
+            <div id="currentMonthLabel">
+              Mai 2026
+            </div>
+
+            <button
+              class="month-btn"
+              id="nextMonthBtn">
+
+              →
+            </button>
+
+          </div>
+
+          <div class="overview-total">
+
+            <div class="overview-total-label">
+              Gebuchte Zeit
+            </div>
+
+            <div
+              class="overview-total-time"
+              id="overviewTotal">
+
+              00:00
+
+            </div>
+
+          </div>
+
+          <div
+            class="entries"
+            id="entries">
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- SETTINGS -->
+
+      <section
+        id="settingsPage"
+        class="page">
+
+        <div class="content-card">
+
+          <div class="section-title">
+            Einstellungen
+          </div>
+
+          <label class="label">
+            Dein Name
+          </label>
+
+          <input
+            type="text"
+            id="nameInput"
+            placeholder="Name eingeben">
+
+          <button
+            class="secondary-btn"
+            id="exportBtn">
+
+            CSV exportieren
+
+          </button>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- NAVIGATION -->
+
+  <nav class="bottom-nav">
+
+    <!-- HOME -->
+
+    <a
+      class="nav-item active"
+      data-page="homePage">
+
+      <svg fill="none"
+           stroke="currentColor"
+           stroke-width="2"
+           viewBox="0 0 24 24">
+
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9.5z"/>
+
+      </svg>
+
+      <span>Home</span>
+
+    </a>
+
+    <!-- OVERVIEW -->
+
+    <a
+      class="nav-item"
+      data-page="overviewPage">
+
+      <svg fill="none"
+           stroke="currentColor"
+           stroke-width="2"
+           viewBox="0 0 24 24">
+
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M4 6h16M4 12h16M4 18h16"/>
+
+      </svg>
+
+      <span>Übersicht</span>
+
+    </a>
+
+    <!-- SETTINGS -->
+
+    <a
+      class="nav-item"
+      data-page="settingsPage">
+
+      <svg fill="none"
+           stroke="currentColor"
+           stroke-width="2"
+           viewBox="0 0 24 24">
+
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M12 15a3 3 0 100-6 3 3 0 000 6z"/>
+
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09A1.65 1.65 0 0015 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.7 0 1.31.4 1.51 1H21a2 2 0 110 4h-.09c-.2.6-.81 1-1.51 1z"/>
+
+      </svg>
+
+      <span>Settings</span>
+
+    </a>
+
+  </nav>
+
+  <script>
+
+    /* STORAGE */
+
+    const sessions =
+      JSON.parse(
+        localStorage.getItem('zt_sessions')
+        || '[]'
+      );
+
+    let currentStart = null;
+
+    /* ELEMENTS */
+
+    const actionBtn =
+      document.getElementById('actionBtn');
+
+    const monthlyTime =
+      document.getElementById('monthlyTime');
+
+    const overviewTotal =
+      document.getElementById('overviewTotal');
+
+    const entries =
+      document.getElementById('entries');
+
+    const status =
+      document.getElementById('status');
+
+    const welcomeText =
+      document.getElementById('welcomeText');
+
+    const nameInput =
+      document.getElementById('nameInput');
+
+    const currentMonthLabel =
+      document.getElementById('currentMonthLabel');
+
+    /* NAME */
+
+    const savedName =
+      localStorage.getItem('zt_name')
+      || 'Unbekannte|r';
+
+    nameInput.value = savedName;
+
+    updateWelcome(savedName);
+
+    function updateWelcome(name){
+
+      const finalName =
+        name.trim().length
+          ? name.trim()
+          : 'Unbekannte|r';
+
+      welcomeText.textContent =
+        `Hallo ${finalName}!`;
+    }
+
+    nameInput.addEventListener('input', () => {
+
+      localStorage.setItem(
+        'zt_name',
+        nameInput.value
+      );
+
+      updateWelcome(nameInput.value);
+    });
+
+    /* FORMAT */
+
+    function formatHHMM(ms){
+
+      const totalMinutes =
+        Math.floor(ms / 60000);
+
+      const h =
+        String(Math.floor(totalMinutes / 60))
+          .padStart(2,'0');
+
+      const m =
+        String(totalMinutes % 60)
+          .padStart(2,'0');
+
+      return `${h}:${m}`;
+    }
+
+    /* SAVE */
+
+    function save(){
+
+      localStorage.setItem(
+        'zt_sessions',
+        JSON.stringify(sessions)
+      );
+    }
+
+    /* RESTORE */
+
+    const openSession =
+      sessions.find(s => !s.end);
+
+    if(openSession){
+      currentStart = openSession.start;
+    }
+
+    /* BUTTON */
+
+    function renderButton(){
+
+      if(currentStart){
+
+        actionBtn.textContent = 'Stop';
+
+        actionBtn.classList.remove('start');
+        actionBtn.classList.add('stop');
+
+        status.textContent =
+          'Tracking aktiv';
+
+      } else {
+
+        actionBtn.textContent = 'Start';
+
+        actionBtn.classList.remove('stop');
+        actionBtn.classList.add('start');
+
+        status.textContent = '';
+      }
+    }
+
+    /* TOTAL */
+
+    function updateMonthlyTotal(){
+
+      const now = new Date();
+
+      let total = 0;
+
+      sessions.forEach(s => {
+
+        if(!s.end) return;
+
+        const d =
+          new Date(s.start);
+
+        if(
+          d.getMonth() === now.getMonth()
+          &&
+          d.getFullYear() === now.getFullYear()
+        ){
+
+          total +=
+            new Date(s.end)
+            - new Date(s.start);
+        }
+      });
+
+      monthlyTime.textContent =
+        formatHHMM(total);
+    }
+
+    /* ACTION */
+
+    actionBtn.addEventListener('click', () => {
+
+      if(!currentStart){
+
+        currentStart =
+          new Date().toISOString();
+
+        sessions.push({
+          start:currentStart,
+          end:null,
+          edited:false
+        });
+
+      } else {
+
+        const idx =
+          sessions.findIndex(
+            s => s.start === currentStart
+          );
+
+        if(idx !== -1){
+
+          sessions[idx].end =
+            new Date().toISOString();
+        }
+
+        currentStart = null;
+      }
+
+      save();
+
+      renderButton();
+
+      updateMonthlyTotal();
+
+      renderOverview();
+    });
+
+    /* OVERVIEW */
+
+    let selectedMonth =
+      new Date().getMonth();
+
+    let selectedYear =
+      new Date().getFullYear();
+
+    function renderOverview(){
+
+      const names = [
+        'Januar','Februar','März',
+        'April','Mai','Juni',
+        'Juli','August','September',
+        'Oktober','November','Dezember'
+      ];
+
+      currentMonthLabel.textContent =
+        `${names[selectedMonth]} ${selectedYear}`;
+
+      const filtered =
+        sessions
+          .filter(s => s.end)
+          .filter(s => {
+
+            const d =
+              new Date(s.start);
+
+            return (
+              d.getMonth() === selectedMonth
+              &&
+              d.getFullYear() === selectedYear
+            );
+          });
+
+      let total = 0;
+
+      filtered.forEach(s => {
+
+        total +=
+          new Date(s.end)
+          - new Date(s.start);
+      });
+
+      overviewTotal.textContent =
+        formatHHMM(total);
+
+      entries.innerHTML = '';
+
+      filtered
+        .slice(-10)
+        .reverse()
+        .forEach((entry, i) => {
+
+          const div =
+            document.createElement('div');
+
+          div.className =
+            `entry ${entry.edited ? 'edited' : ''}`;
+
+          const start =
+            new Date(entry.start)
+              .toISOString()
+              .slice(0,16);
+
+          const end =
+            new Date(entry.end)
+              .toISOString()
+              .slice(0,16);
+
+          div.innerHTML = `
+            <div class="entry-top">
+              <span>Eintrag ${i + 1}</span>
+              <span>${formatHHMM(
+                new Date(entry.end)
+                - new Date(entry.start)
+              )}</span>
+            </div>
+
+            <div class="entry-row">
+
+              <input
+                type="datetime-local"
+                value="${start}"
+                class="start-input">
+
+              <input
+                type="datetime-local"
+                value="${end}"
+                class="end-input">
+
+            </div>
+
+            ${
+              entry.edited
+                ? '<div class="edited-badge">Manuell bearbeitet</div>'
+                : ''
+            }
+          `;
+
+          const startInput =
+            div.querySelector('.start-input');
+
+          const endInput =
+            div.querySelector('.end-input');
+
+          startInput.addEventListener('change', () => {
+
+            entry.start =
+              new Date(startInput.value)
+                .toISOString();
+
+            entry.edited = true;
+
+            save();
+
+            renderOverview();
+
+            updateMonthlyTotal();
+          });
+
+          endInput.addEventListener('change', () => {
+
+            entry.end =
+              new Date(endInput.value)
+                .toISOString();
+
+            entry.edited = true;
+
+            save();
+
+            renderOverview();
+
+            updateMonthlyTotal();
+          });
+
+          entries.appendChild(div);
+        });
+    }
+
+    /* MONTH NAV */
+
+    document
+      .getElementById('prevMonthBtn')
+      .addEventListener('click', () => {
+
+        selectedMonth--;
+
+        if(selectedMonth < 0){
+
+          selectedMonth = 11;
+          selectedYear--;
+        }
+
+        renderOverview();
+      });
+
+    document
+      .getElementById('nextMonthBtn')
+      .addEventListener('click', () => {
+
+        selectedMonth++;
+
+        if(selectedMonth > 11){
+
+          selectedMonth = 0;
+          selectedYear++;
+        }
+
+        renderOverview();
+      });
+
+    /* EXPORT */
+
+    document
+      .getElementById('exportBtn')
+      .addEventListener('click', () => {
+
+        let csv =
+          'Start,Ende,Edited\n';
+
+        sessions.forEach(s => {
+
+          csv +=
+            `"${s.start}","${s.end}","${s.edited || false}"\n`;
+        });
+
+        const blob =
+          new Blob(
+            [csv],
+            {type:'text/csv'}
+          );
+
+        const url =
+          URL.createObjectURL(blob);
+
+        const a =
+          document.createElement('a');
+
+        a.href = url;
+
+        a.download =
+          'zeittracker_export.csv';
+
+        a.click();
+
+        URL.revokeObjectURL(url);
+      });
+
+    /* NAVIGATION */
+
+    document
+      .querySelectorAll('.nav-item')
+      .forEach(item => {
+
+        item.addEventListener('click', () => {
+
+          document
+            .querySelectorAll('.nav-item')
+            .forEach(i =>
+              i.classList.remove('active')
+            );
+
+          item.classList.add('active');
+
+          const target =
+            item.dataset.page;
+
+          document
+            .querySelectorAll('.page')
+            .forEach(p =>
+              p.classList.remove('active')
+            );
+
+          document
+            .getElementById(target)
+            .classList.add('active');
+        });
+      });
+
+    /* INIT */
+
+    renderButton();
+
+    updateMonthlyTotal();
+
+    renderOverview();
+
+  </script>
+
+</body>
+</html>
